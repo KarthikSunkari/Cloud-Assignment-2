@@ -1,9 +1,9 @@
 services:
   flask-app:
-    image: karthik14916/flask-app:latest
+    image: rajathreghunath/flask-app:latest
     container_name: flask-app
     ports:
-      - "8000:8000"  # Map local port 5001 to container port 5000
+      - "8000:8000"
     environment:
       PORT: 8000
       MONGO_PORT: 27017

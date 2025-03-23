@@ -3,6 +3,7 @@ from pymongo import MongoClient # Database connector
 from bson.objectid import ObjectId # For ObjectId to work
 from bson.errors import InvalidId # For catching InvalidId exception for ObjectId
 import os
+import time
 
 mongodb_host = os.environ.get('MONGO_HOST', 'localhost')
 mongodb_port = int(os.environ.get('MONGO_PORT', '27017'))
@@ -118,6 +119,31 @@ def search():
 @app.route("/about")
 def about():
 	return render_template('credits.html',t=title,h=heading)
+
+start_time = time.time()
+
+@app.route("/health")
+def health():
+
+	# Simulating liveness check failure
+	if (time.time() - start_time) > 60: # Pod will stop being live after 60 seconds
+		return "Not Alive", 500
+	
+	return "OK", 200 # This is the normal check
+
+@app.route("/ready")
+def ready():
+	
+	# Simulating readiness check failure
+	if (time.time() - start_time) > 30: # Pod will stop being ready after 30 seconds
+		return "Not Ready", 500
+
+	# This is the normal check
+	try:
+		client.admin.command('ping')  # Check if MongoDB is ready
+		return "Ready", 200  # App is ready to handle traffic
+	except Exception as e:
+		return f"Not Ready: {e}", 500
 
 if __name__ == "__main__":
 	env = os.environ.get('FLASK_ENV', 'development')
